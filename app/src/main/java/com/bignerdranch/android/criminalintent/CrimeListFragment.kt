@@ -42,6 +42,12 @@ class CrimeListFragment : Fragment() {
         // 10.8 Set up the LayoutManager
         binding.crimeRecyclerView.layoutManager = LinearLayoutManager(context)
 
+        // 10.12 Instantiate an instance of CrimeListAdapter with our crime data
+        //  AND connect it to the RecyclerView
+        val crimes = crimeListViewModel.crimes
+        val adapter = CrimeListAdapter(crimes)
+        binding.crimeRecyclerView.adapter = adapter
+
         return binding.root
     }
     override fun onDestroyView() {
