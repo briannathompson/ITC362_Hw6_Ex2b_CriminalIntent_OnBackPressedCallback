@@ -13,7 +13,15 @@ import java.util.*
 class CrimeDetailFragment : Fragment() {
 
     // 9.7 implement binding by using the FragmentCrimeDetailBinding class
-    private lateinit var binding: FragmentCrimeDetailBinding
+    //(9.13)private lateinit var binding: FragmentCrimeDetailBinding
+
+    // 9.13 Create a nullable backing property (called _binding) and change the property to become a computed property
+    // Kotlin will be able to smart cast the binding property to be non-null using the checkNotNull() precondition
+    private var _binding: FragmentCrimeDetailBinding? = null
+    private val binding
+        get() = checkNotNull(_binding) {
+            "Cannot access binding because it is null. Is the view visible?"
+        }
 
     // 9.6 Add a property for the Crime instance
     private lateinit var crime: Crime
@@ -41,7 +49,8 @@ class CrimeDetailFragment : Fragment() {
             2. the view's parent (container)
             3. whether to immediately add the inflated view to the view's parent (false)
         */
-        binding =
+        // 9.13 replace 'binding' with '_binding'
+        _binding =
             FragmentCrimeDetailBinding.inflate(layoutInflater, container, false)
         return binding.root
     }
@@ -68,5 +77,12 @@ class CrimeDetailFragment : Fragment() {
                 crime = crime.copy(isSolved = isChecked)
             }
         }
+    }
+
+    // 9.12 Null out references to the view
+    override fun onDestroyView() {
+        super.onDestroyView()
+        // 9.13 replace 'binding' with '_binding'
+        _binding = null
     }
 }
