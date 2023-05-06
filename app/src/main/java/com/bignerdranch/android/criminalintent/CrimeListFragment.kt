@@ -10,14 +10,13 @@ import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeListBinding
 
-// 10.3 Implement CrimeListFragment
 
 private const val TAG = "CrimeListFragment"
 
 // Make CrimeListFragment a subclass of Fragment (androidx.fragment.app.Fragment)
 class CrimeListFragment : Fragment() {
 
-    // 10.7 Hook up the view for CrimeListFragment
+
     private var _binding: FragmentCrimeListBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
@@ -31,7 +30,6 @@ class CrimeListFragment : Fragment() {
         Log.d(TAG, "Total crimes: ${crimeListViewModel.crimes.size}") // Logs the number of crimes found in CrimeListViewModel
     }
 
-    // 10.7 Hook up the view for CrimeListFragment
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,11 +37,10 @@ class CrimeListFragment : Fragment() {
     ): View? {
         _binding = FragmentCrimeListBinding.inflate(inflater, container, false)
 
-        // 10.8 Set up the LayoutManager
+        // Set up the LayoutManager
         binding.crimeRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        // 10.12 Instantiate an instance of CrimeListAdapter with our crime data
-        //  AND connect it to the RecyclerView
+        // Instantiate an instance of CrimeListAdapter with our crime data AND connect it to the RecyclerView
         val crimes = crimeListViewModel.crimes
         val adapter = CrimeListAdapter(crimes)
         binding.crimeRecyclerView.adapter = adapter

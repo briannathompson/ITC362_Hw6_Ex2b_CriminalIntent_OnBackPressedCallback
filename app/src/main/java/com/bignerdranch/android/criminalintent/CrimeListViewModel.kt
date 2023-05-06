@@ -3,7 +3,7 @@ package com.bignerdranch.android.criminalintent
 import androidx.lifecycle.ViewModel
 import java.util.*
 
-// 10.2 Create a CrimeListViewModel class that extends (inherits from) ViewModel
+// Create a CrimeListViewModel class that extends (inherits from) ViewModel
 class CrimeListViewModel : ViewModel() {
 
     // Add a property to store a list of Crimes
