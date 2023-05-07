@@ -1,7 +1,6 @@
 package com.bignerdranch.android.criminalintent
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,16 +9,15 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeListBinding
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.collect
 
 
 private const val TAG = "CrimeListFragment"
 
-// Make CrimeListFragment a subclass of Fragment (androidx.fragment.app.Fragment)
+
 class CrimeListFragment : Fragment() {
 
     private var _binding: FragmentCrimeListBinding? = null
@@ -30,15 +28,6 @@ class CrimeListFragment : Fragment() {
 
     private val crimeListViewModel: CrimeListViewModel by viewModels()
 
-    // 12.5 Create a variable for an instance of the Job class
-    //(12.6) private var job: Job? = null
-
-    /* 12.7 Clean up code: Don't need to log the number of crimes anymore
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        Log.d(TAG, "Total crimes: ${crimeListViewModel.crimes.size}") // Logs the number of crimes found in CrimeListViewModel
-    }*/
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -46,46 +35,35 @@ class CrimeListFragment : Fragment() {
     ): View? {
         _binding = FragmentCrimeListBinding.inflate(inflater, container, false)
 
-        // Set up the LayoutManager
         binding.crimeRecyclerView.layoutManager = LinearLayoutManager(context)
-
-        /* 12.7 Clean up code: delete the code that tries to initialize CrimeListAdapter with missing data
-        // Instantiate an instance of CrimeListAdapter with our crime data AND connect it to the RecyclerView
-        val crimes = crimeListViewModel.crimes
-        val adapter = CrimeListAdapter(crimes)
-        binding.crimeRecyclerView.adapter = adapter*/
 
         return binding.root
     }
 
-    /* 12.6 Removed code below to use repeatOnLifecycle
-    // 12.5 call the coroutine by using job
-    override fun onStart() {
-        super.onStart()
-        job = viewLifecycleOwner.lifecycleScope.launch {
-            val crimes = crimeListViewModel.loadCrimes()
-            binding.crimeRecyclerView.adapter = CrimeListAdapter(crimes)
-        }
-    }
-    // 12.5 End the coroutine by using job
-    override fun onStop() {
-        super.onStop()
-        job?.cancel()
-    }*/
-
-    // 12.6 Implement repeatOnLifecycle
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                //(12.27)val crimes = crimeListViewModel.loadCrimes()
-                // 12.27 Replace call to .loadCrimes() with a collect {} function call on the crimes property
+
                 crimeListViewModel.crimes.collect { crimes ->
                     binding.crimeRecyclerView.adapter =
-                        CrimeListAdapter(crimes)
+                        CrimeListAdapter(crimes) { crimeId ->       // 13.13 Add crimeId so we can perform the navigation
+                            // 13.8 Use the findNavController function and call the navigate() function on it
+                            findNavController().navigate(
+                                // 13.11 Add the Safe Args Direction class function for this class to use our action
+                                /*  Safe Args plugin generates Direction classes, which are the
+                                    fragment's name + "Directions"
+                                *   The Direction function name is based on the action's resource ID,
+                                    there will be one generated function per action within the destination
+                                * In this project:
+                                    Direction Class: CrimeListFragmentDirections    from Class: CrimeListFragment
+                                    Direction Function: showCrimeDetail             from Resource ID: R.id.show_crime_detail        */
+                                CrimeListFragmentDirections.showCrimeDetail(crimeId) // 13.13 Add crimeId so we can perform the navigation
+                                //R.id.show_crime_detail
+                            )
+                        }
                 }
             }
-            // NOTE: Don't need to cancel Job bc repeatOnLifecyle will handle that
         }
     }
 

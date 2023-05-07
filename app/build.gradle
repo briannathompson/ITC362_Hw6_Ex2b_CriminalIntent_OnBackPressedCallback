@@ -1,7 +1,8 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.kapt'      // 12.8 Add plugin kapt = “Kotlin annotation processing tool
+    id 'org.jetbrains.kotlin.kapt'      // kapt = “Kotlin annotation processing tool"
+    id 'androidx.navigation.safeargs'   // 13.10 Add Safe args plugin
 }
 
 android {
@@ -33,7 +34,7 @@ android {
     }
     buildFeatures {
         viewBinding true            // viewBinding enabled
-        dataBinding true   // added this to fix error in CrimeListFragment onCreateView return binding.root
+        dataBinding true            // added this to fix error in CrimeListFragment onCreateView return binding.root
     }
 }
 
@@ -46,13 +47,14 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.5.7'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.1'
     implementation 'androidx.recyclerview:recyclerview:1.3.0'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'        // 12.1 Add Coroutines dependencies
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'     // 12.1 Add Coroutines dependencies
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'             // 12.1 Add Coroutines dependencies
-    implementation 'androidx.room:room-runtime:2.5.1'       // 12.8 Room API; contains all the classes and annotations needed to define a database
-    implementation 'androidx.room:room-ktx:2.5.1'           // 12.8 adds Kotlin-specific functionality and support for coroutines
-    kapt 'androidx.room:room-compiler:2.5.1'                // 12.8 Room compiler; generates the database implementation based on specified annotations
-
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.1'
+    implementation 'androidx.room:room-runtime:2.5.1'
+    implementation 'androidx.room:room-ktx:2.5.1'
+    kapt 'androidx.room:room-compiler:2.5.1'
+    implementation "androidx.navigation:navigation-fragment-ktx:2.5.3"      // 13.1 Add navigation dependency for core functionality
+    implementation "androidx.navigation:navigation-ui-ktx:2.5.3"            // 13.1 Add navigation dependency for fragment support
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
