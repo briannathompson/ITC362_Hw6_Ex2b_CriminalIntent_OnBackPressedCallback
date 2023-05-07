@@ -1,11 +1,15 @@
 package com.bignerdranch.android.criminalintent
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import java.util.*
 
-// Create the Crime data class and add 4 properties
+@Entity    // 12.10 Make the Crime class an entity for our database
+/* @Entity is applied at the class level, it indicates that the class defines the structure of a table/set of tables */
 data class Crime(
-    val id: UUID,           // an ID to uniquely identify the instance
-    val title: String,      // a descriptive title, like “Toxic sink dump” or “Someone stole my yogurt!”
-    val date: Date,         // a date
-    val isSolved: Boolean   // a Boolean indication of whether the crime has been solved
+    // These will be our table's columns (4 columns, one for each property)
+    @PrimaryKey val id: UUID,          // @PrimaryKey annotation will make UUID the primary key for the Crime entity
+    val title: String,
+    val date: Date,
+    val isSolved: Boolean
 )
