@@ -7,8 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.navArgs
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeDetailBinding
+import kotlinx.coroutines.launch
 import java.util.*
 
 // 13.15 Delete references to old crime private const val TAG = "CrimeDetailFragment" // 13.14 Add a TAG for CrimeDetailFragment
@@ -26,6 +31,12 @@ class CrimeDetailFragment : Fragment() {
 
     // 13.14 Add a class property called args using the navArgs property delegate
     private val args: CrimeDetailFragmentArgs by navArgs()
+
+    // 13.18 add this class property that allows you to access the CrimeDetailViewModel
+    private val crimeDetailViewModel: CrimeDetailViewModel by viewModels {
+        CrimeDetailViewModelFactory(args.crimeId)
+    }
+
 
     /* 13.15 Delete references to old crime
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -56,6 +67,13 @@ class CrimeDetailFragment : Fragment() {
         binding.apply {
             crimeTitle.doOnTextChanged { text, _, _, _ ->   // lambda arguments named _ are ignored; we only care about text
                 // 13.15 Delete references to old crime crime = crime.copy(title = text.toString())
+
+                // 13.21 Hook the UI up to our updateCrime function
+                // if text changes, call back to crimeDetailViewModel and run updateCrime function
+                crimeDetailViewModel.updateCrime { oldCrime ->
+                    oldCrime.copy(title = text.toString())      // changes title
+                }
+
             }
 
             crimeDate.apply {
@@ -65,6 +83,21 @@ class CrimeDetailFragment : Fragment() {
 
             crimeSolved.setOnCheckedChangeListener { _, isChecked ->
                 // 13.15 Delete references to old crime crime = crime.copy(isSolved = isChecked)
+
+                // 13.21 Hook the UI up to our updateCrime function
+                // if checkbox changes, call back to crimeDetailViewModel and run updateCrime function
+                crimeDetailViewModel.updateCrime { oldCrime ->
+                    oldCrime.copy(isSolved = isChecked)       // changes solved status
+                }
+            }
+        }
+
+        // 13.19 Add a lifecycle viewer that we will use to retain data
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                crimeDetailViewModel.crime.collect { crime ->
+                    crime?.let { updateUi(it) }
+                }
             }
         }
     }
@@ -73,5 +106,16 @@ class CrimeDetailFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    // 13.19 Add a update ui function
+    private fun updateUi(crime: Crime) {        // takes the whole crime object
+        binding.apply {
+            if (crimeTitle.text.toString() != crime.title) {
+                crimeTitle.setText(crime.title)
+            }
+            crimeDate.text = crime.date.toString()
+            crimeSolved.isChecked = crime.isSolved
+        }
     }
 }

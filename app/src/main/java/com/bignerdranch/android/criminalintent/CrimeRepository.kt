@@ -3,7 +3,10 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import androidx.room.Room
 import com.bignerdranch.android.criminalintent.database.CrimeDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import java.util.*
 
 /*  A repository class encapsulates the logic for accessing data from a single
@@ -15,12 +18,17 @@ import java.util.*
 // 12.20 create a constant to store database name
 private const val DATABASE_NAME = "crime-database"
 
-// 12.17 Implement a repository
 /* CrimeRepository is a singleton, there will only be one instance of it in the app process
 *   Marking the constructor as private ensures no components can "go rogue and create their own instance" */
 class CrimeRepository private constructor(context: Context) {
 
-    // 12.20 Add a private property to store a reference to the database
+    // 13.25 create a coroutineScope constructor property and pass it GlobalScope
+    //   as the default parameter for a new coroutine scope
+    /*  GlobalScope lives longer than a viewModelScope, so it's good to update your db
+        in the background when the user moves away from CrimeDetailFragment */
+    private val coroutineScope: CoroutineScope = GlobalScope
+
+
     /*  Room.databaseBuilder() creates a concrete implementation of the abstract CrimeDatabase using
         three parameters:
             1. a Context object, since the database is accessing the filesystem
@@ -33,13 +41,20 @@ class CrimeRepository private constructor(context: Context) {
             DATABASE_NAME
         )
         /* createFromAsset(databaseFilePath) */
-        .createFromAsset(DATABASE_NAME) // 12.22 when we open this folder, it creates the database from that asset
+        .createFromAsset(DATABASE_NAME)
         .build()
 
-    // 12.21 Add a function to the repository for each function in the DAO (there are two)
-    // 12.25 Change getCrimes() to use Flow
+
     fun getCrimes(): Flow<List<Crime>> = database.crimeDao().getCrimes()
     suspend fun getCrime(id: UUID): Crime = database.crimeDao().getCrime(id)
+
+    // 13.23 Create a function that allows you to access the DAO update function through this repository
+    /*suspend*/ fun updateCrime(crime: Crime) {
+        // 13.25 Use the new coroutineScope property to save the updated crime in the database
+        coroutineScope.launch {
+            database.crimeDao().updateCrime(crime)
+        }
+    }
 
 
     companion object {      // Create a companion object

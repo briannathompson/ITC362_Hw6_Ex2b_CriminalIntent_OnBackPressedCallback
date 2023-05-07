@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.util.*
 
 /*  CrimeDetailViewModel needs the id to load for when CrimeDetailViewModel is created.
@@ -26,10 +28,31 @@ class CrimeDetailViewModel(crimeId: UUID) : ViewModel() {
             _crime.value = crimeRepository.getCrime(crimeId)
         }
     }
+
+    // 13.20 Use a lambda expression that provides the latest crime available and have CrimeDetailFragment update it
+    fun updateCrime(onUpdate: (Crime) -> Crime) {
+        _crime.update { oldCrime ->
+            oldCrime?.let { onUpdate(it) }
+        }
+    }
+
+    // 13.24 Update the database when CrimeDetailViewModel is cleared by overriding onCleared() and
+    //  use the viewModelScope class property to launch a coroutine. In the coroutine, access the latest value
+    //  from the crime StateFlow and save it to the database
+    override fun onCleared() {
+        super.onCleared()
+        //viewModelScope.launch {
+            // 13.26 Call the updated function from outside a coroutine scope
+            crime.value?.let { crimeRepository.updateCrime(it) }
+        //}
+    }
+
+
 }
 
+// 13.17 Create a factory class for CrimeDetailViewModel
 class CrimeDetailViewModelFactory(
-    private val crimeId: UUID
+    private val crimeId: UUID       //add crimeId as a constructor parameter
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return CrimeDetailViewModel(crimeId) as T

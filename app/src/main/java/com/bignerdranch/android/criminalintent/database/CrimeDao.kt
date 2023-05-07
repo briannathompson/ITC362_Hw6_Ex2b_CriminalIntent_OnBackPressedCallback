@@ -2,6 +2,7 @@ package com.bignerdranch.android.criminalintent.database
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Update
 import com.bignerdranch.android.criminalintent.Crime
 import kotlinx.coroutines.flow.Flow
 import java.util.*
@@ -21,5 +22,9 @@ interface CrimeDao {
     // Returns only a crime that matches a specified id
     @Query("SELECT * FROM crime WHERE id=(:id)")
     suspend fun getCrime(id: UUID): Crime // Adding "suspend" allows you to asynchronously call a function within a coroutine
+
+    // 13.22 Add a way to update the database
+    @Update
+    suspend fun updateCrime(crime: Crime)
 
 }
