@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 12.19 Register the application class in the manifest (android:name=".CriminalIntentApplication")-->
     <application
         android:name=".CriminalIntentApplication"
         android:allowBackup="true"

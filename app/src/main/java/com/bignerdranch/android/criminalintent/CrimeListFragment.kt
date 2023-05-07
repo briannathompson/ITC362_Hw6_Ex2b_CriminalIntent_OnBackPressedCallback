@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeListBinding
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.collect
 
 
 private const val TAG = "CrimeListFragment"
@@ -77,12 +78,14 @@ class CrimeListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val crimes = crimeListViewModel.loadCrimes()
-                binding.crimeRecyclerView.adapter =
-                    CrimeListAdapter(crimes)
+                //(12.27)val crimes = crimeListViewModel.loadCrimes()
+                // 12.27 Replace call to .loadCrimes() with a collect {} function call on the crimes property
+                crimeListViewModel.crimes.collect { crimes ->
+                    binding.crimeRecyclerView.adapter =
+                        CrimeListAdapter(crimes)
+                }
             }
             // NOTE: Don't need to cancel Job bc repeatOnLifecyle will handle that
-
         }
     }
 

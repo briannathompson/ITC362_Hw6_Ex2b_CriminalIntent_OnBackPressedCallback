@@ -3,6 +3,7 @@ package com.bignerdranch.android.criminalintent
 import android.content.Context
 import androidx.room.Room
 import com.bignerdranch.android.criminalintent.database.CrimeDatabase
+import kotlinx.coroutines.flow.Flow
 import java.util.*
 
 /*  A repository class encapsulates the logic for accessing data from a single
@@ -31,10 +32,13 @@ class CrimeRepository private constructor(context: Context) {
             CrimeDatabase::class.java,
             DATABASE_NAME
         )
+        /* createFromAsset(databaseFilePath) */
+        .createFromAsset(DATABASE_NAME) // 12.22 when we open this folder, it creates the database from that asset
         .build()
 
     // 12.21 Add a function to the repository for each function in the DAO (there are two)
-    suspend fun getCrimes(): List<Crime> = database.crimeDao().getCrimes()
+    // 12.25 Change getCrimes() to use Flow
+    fun getCrimes(): Flow<List<Crime>> = database.crimeDao().getCrimes()
     suspend fun getCrime(id: UUID): Crime = database.crimeDao().getCrime(id)
 
 
