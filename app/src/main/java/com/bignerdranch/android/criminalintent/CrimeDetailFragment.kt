@@ -1,55 +1,64 @@
 package com.bignerdranch.android.criminalintent
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.bignerdranch.android.criminalintent.databinding.FragmentCrimeDetailBinding
 import kotlinx.coroutines.launch
-import java.util.*
-
-// 13.15 Delete references to old crime private const val TAG = "CrimeDetailFragment" // 13.14 Add a TAG for CrimeDetailFragment
 
 class CrimeDetailFragment : Fragment() {
 
-    // Create a nullable backing property (called _binding) and change the property to become a computed property
     private var _binding: FragmentCrimeDetailBinding? = null
     private val binding
         get() = checkNotNull(_binding) {
             "Cannot access binding because it is null. Is the view visible?"
         }
 
-    //  13.15 Delete references to the old crime private lateinit var crime: Crime // property for the Crime instance
-
-    // 13.14 Add a class property called args using the navArgs property delegate
     private val args: CrimeDetailFragmentArgs by navArgs()
 
-    // 13.18 add this class property that allows you to access the CrimeDetailViewModel
     private val crimeDetailViewModel: CrimeDetailViewModel by viewModels {
         CrimeDetailViewModelFactory(args.crimeId)
     }
 
-
-    /* 13.15 Delete references to old crime
+    /* Challenge Code*/
+    /* Where to put OnBackPressedCallback: https://medium.com/@valentinerutto/handling-onbackpressed-in-fragment-3913046c377e */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        crime = Crime(
-            id = UUID.randomUUID(),
-            title = "",
-            date = Date(),
-            isSolved = false
-        )
-        // 13.14 Use the TAG and add a message that gives you the ID from the crime you clicked on
-        Log.d(TAG, "The crime ID is: ${args.crimeId}")
-    }*/
+        // Create the OnBackPressedCallback
+        /* https://developer.android.com/reference/androidx/activity/OnBackPressedDispatcher */
+        val callback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                // If the crime_title EditText is empty, then show a toast that asks the user to describe the crime
+                if (binding.crimeTitle.text.toString() == "") {
+                    /* How to display toast widget in a fragment:
+                        https://stackoverflow.com/questions/63465960/how-to-display-a-toast-widget-in-a-fragment
+                        https://alvinalexander.com/source-code/android/how-show-android-toast-message-fragment/ */
+                    Toast.makeText(this@CrimeDetailFragment.requireActivity(), R.string.empty_crime_title_response, Toast.LENGTH_SHORT).show()
+                }
+                // Else, if there is text in the crimeTitle EditText, pop CrimeDetailFragment off the back stack with NavController
+                else {
+                    // Use the NavController to pop off the CrimeDetailFragment
+                    /* https://developer.android.com/reference/androidx/navigation/NavController#popBackStack() */
+                    findNavController().popBackStack()
+                }
+            }
+        }
+        // Add the OnBackPressedCallback object ("callback") to the back stack manager
+        /* https://developer.android.com/reference/androidx/activity/OnBackPressedDispatcher#addCallback(androidx.activity.OnBackPressedCallback) */
+        requireActivity().onBackPressedDispatcher.addCallback(this, callback)
+    }
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -73,7 +82,6 @@ class CrimeDetailFragment : Fragment() {
                 crimeDetailViewModel.updateCrime { oldCrime ->
                     oldCrime.copy(title = text.toString())      // changes title
                 }
-
             }
 
             crimeDate.apply {
